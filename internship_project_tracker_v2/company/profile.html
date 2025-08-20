@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Company Profile</title>
+  <link rel="stylesheet" href="../public/css/style.css">
+  
+</head>
+<body>
+  
+<div class="page-wrap">
+  <nav>
+    <a href="../company/dashboard.html">Home</a>
+    <a href="../company/post_internship.html">Post Internship</a>
+    <a href="../company/profile.html">Profile</a>
+    <a href="../php/auth/logout.php">Logout</a>
+  </nav>
+  <div class="card">
+    <h2>My Profile</h2>
+    <form id="profileForm">
+      <input name="name" placeholder="Company Name">
+      <input name="website" placeholder="Website">
+      <input name="contact_info" placeholder="Contact Info">
+      <button type="submit">Update</button>
+    </form>
+  </div>
+</div>
+<script>
+async function loadProfile(){
+  const r=await fetch('../php/users/get_profile.php',{credentials:'include'});
+  const d=await r.json();
+  if(d.user){
+    const u=d.user;
+    document.querySelector('[name=name]').value=u.name||'';
+    document.querySelector('[name=website]').value=u.website||'';
+    document.querySelector('[name=contact_info]').value=u.contact_info||'';
+  }
+}
+document.getElementById('profileForm').addEventListener('submit', async e=>{
+  e.preventDefault();
+  const r=await fetch('../php/users/update_profile.php',{method:'POST',body:new FormData(e.target),credentials:'include'});
+  const d=await r.json(); alert(d.message||'Updated'); loadProfile();
+});
+loadProfile();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Dashboard</title>
+  <link rel="stylesheet" href="../public/css/dashboard.css">
+</head>
+<body>
+  
+  <div class="page-wrap">
+    <nav>
+      <a href="../student/dashboard.html">Home</a>
+      <a href="../student/internships.html">Internships</a>
+      <a href="../student/projects.html">Projects</a>
+      <a href="../student/profile.html">Profile</a>
+      <a href="../php/auth/logout.php">Logout</a>
+    </nav>
+
+    <div class="card">
+      <h2>Welcome, Student</h2>
+      <p>Your stats and quick links.</p>
+    </div>
+
+    <div class="card">
+      <h3>Recent Applications</h3>
+      <table id="apps">
+        <thead>
+          <tr><th>Internship</th><th>Status</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div> <!-- ✅ properly closes page-wrap -->
+
+  <script>
+    async function loadApps(){
+      const r = await fetch('../php/internships/list.php?myApplications=1', {credentials:'include'});
+      const d = await r.json();
+      const tb = document.querySelector('#apps tbody');
+      tb.innerHTML = (d.applications||[])
+        .map(a => `<tr><td>${a.title}</td><td><span class="badge">${a.status}</span></td></tr>`)
+        .join('');
+    }
+    loadApps();
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,101 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(to right, #0f0c29, #302b63, #24243e);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  overflow-y: auto; /* enable scroll if needed */
+}
+
+.glow-wrapper {
+  padding: 4px;
+  border-radius: 20px;
+  background: linear-gradient(270deg, #00F5A0, #00D9F5, #8A2BE2, #FF3C3C, #00F5A0);
+  background-size: 600% 600%;
+  animation: borderGlow 10s ease infinite;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.glow-wrapper:hover {
+  transform: scale(1.04);
+}
+
+@keyframes borderGlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.container {
+  background-color: #111827;
+  border-radius: 15px;
+  padding: 30px 25px;
+  width: 360px;
+  color: #fff;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+
+.form-box { display: none; }
+.form-box.active { display: block; }
+
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 26px;
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border: none;
+  border-radius: 8px;
+  background: #1f2937;
+  color: #fff;
+  font-size: 15px;
+}
+input::placeholder, textarea::placeholder { color: #aaa; }
+
+button {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(to right, #0072ff, #00c6ff);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: 0.3s;
+}
+button:hover { background: linear-gradient(to right, #00c6ff, #0072ff); }
+
+.toggle-text {
+  text-align: center;
+  margin-top: 15px;
+  font-size: 14px;
+  color: #ccc;
+}
+.toggle-text a {
+  color: #00c6ff;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.password-wrapper { position: relative; margin-bottom: 5px; }
+
+.forgot-container { display: flex; justify-content: flex-end; margin-top: 4px; }
+.forgot-password { font-size: 13px; color: #00c6ff; text-decoration: none; }
+.forgot-password:hover { text-decoration: underline; }
+
+@media (max-width: 420px) {
+  .container { width: 90%; }
+}

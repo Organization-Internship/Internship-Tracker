@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Browse Internships</title>
+  <link rel="stylesheet" href="../public/css/style.css">
+  
+</head>
+<body>
+  
+<div class="page-wrap">
+  <nav>
+    <a href="../student/dashboard.html">Home</a>
+    <a href="../student/internships.html">Internships</a>
+    <a href="../student/projects.html">Projects</a>
+    <a href="../student/profile.html">Profile</a>
+    <a href="../php/auth/logout.php">Logout</a>
+  </nav>
+  <div class="card">
+    <h2>Available Internships</h2>
+    <button onclick="genAI()">Generate AI Internships (demo)</button>
+    <table id="ints"><thead><tr><th>Title</th><th>Type</th><th>Stipend</th><th>Duration</th><th>Skills</th><th>Action</th></tr></thead><tbody></tbody></table>
+  </div>
+</div>
+<script>
+async function loadList(){
+  const r=await fetch('../php/internships/list.php',{credentials:'include'});
+  const d=await r.json();
+  const tb=document.querySelector('#ints tbody');
+  tb.innerHTML=(d.internships||[]).map(x=>`<tr>
+    <td>${x.title}</td><td>${x.kind}</td><td>${x.stipend||''}</td><td>${x.duration||''}</td>
+    <td><span class="small">${(x.skills_required||'').slice(0,40)}</span></td>
+    <td><button onclick="apply(${x.id})">Apply</button></td>
+  </tr>`).join('');
+}
+async function apply(id){
+  const fd=new FormData(); fd.append('internship_id', id);
+  const r=await fetch('../php/internships/apply.php',{method:'POST',body:fd,credentials:'include'});
+  const d=await r.json(); alert(d.message||'Applied'); loadList();
+}
+async function genAI(){
+  const r=await fetch('..s/php/internships/generate_ai.php',{method:'POST',credentials:'include'});
+  const d=await r.json(); alert(d.message||'Generated'); loadList();
+}
+loadList();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mentees</title>
+  <link rel="stylesheet" href="../public/css/style.css">
+  
+</head>
+<body>
+  
+<div class="page-wrap">
+  <nav>
+    <a href="../faculty/dashboard.html">Home</a>
+    <a href="../faculty/post_internship.html">Post Internship</a>
+    <a href="../faculty/mentees.html">Mentees</a>
+    <a href="../faculty/profile.html">Profile</a>
+    <a href="../php/auth/logout.php">Logout</a>
+  </nav>
+  <div class="card">
+    <h2>Your Mentees</h2>
+    <table id="mlist"><thead><tr><th>Name</th><th>Email</th></tr></thead><tbody></tbody></table>
+  </div>
+</div>
+<script>
+(async function(){
+  const r=await fetch('../php/mentorship/mentees.php',{credentials:'include'});
+  const d=await r.json();
+  const tb=document.querySelector('#mlist tbody');
+  tb.innerHTML=(d.mentees||[]).map(m=>`<tr><td>${m.name}</td><td>${m.email}</td></tr>`).join('');
+})();
+</script>
+
+</body>
+</html>
