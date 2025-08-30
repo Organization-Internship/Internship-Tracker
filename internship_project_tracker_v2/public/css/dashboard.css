@@ -1,85 +1,85 @@
 /* Reset */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+*{margin:0;padding:0;box-sizing:border-box}
+
+/* Base */
+html,body{
+  min-height:100vh;
+  font-family:'Segoe UI',sans-serif;
+  background:linear-gradient(to right,#0f0c29,#302b63,#24243e);
+  color:#fff;
+  line-height:1.6;
 }
 
-body {
-  font-family: 'Segoe UI', sans-serif;
-  background: #f5f7fa;
-  color: #333;
-  line-height: 1.6;
-  height: auto;         /* allow page to grow */
-  min-height: 100vh;    /* at least full screen */
-  overflow-y: auto;     /* enable vertical scrolling */
+/* Space for fixed nav */
+body{
+  padding-top:70px;    /* so content not hidden under navbar */
+  overflow-y:auto;     /* ✅ scrolling enabled */
 }
 
-/* Navbar fixed */
-nav {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  background: #1e293b;
-  padding: 1rem;
-  display: flex;
-  justify-content: center;
-  gap: 2rem;
-  z-index: 1000;
+/* --- NAVBAR --- */
+.page-wrap{
+  position:fixed;
+  top:0;left:0;width:100%;
+  background:rgba(0,0,0,0.3);
+  backdrop-filter:saturate(140%) blur(6px);
+  z-index:1000;
+}
+.page-wrap nav{
+  display:flex;align-items:center;gap:2rem;
+  height:60px;padding:0 20px;position:relative;
+}
+.page-wrap nav::after{
+  content:"";position:absolute;left:0;bottom:0;height:4px;width:100%;
+  background:linear-gradient(270deg,#00F5A0,#00D9F5,#8A2BE2,#FF3C3C,#00F5A0);
+  background-size:600% 600%;
+  animation:lineMove 8s ease infinite;
+}
+@keyframes lineMove{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+.page-wrap nav a{
+  color:#f8fafc;text-decoration:none;font-weight:500;font-size:16px;
+  padding:10px 6px;
+  transition:transform .2s ease,color .3s ease;
+}
+.page-wrap nav a:hover{
+  transform:scale(1.05);
+  color:#38bdf8;
+}
+.page-wrap nav a:last-child{margin-left:auto}
+
+/* --- CARDS --- */
+.card{
+  background:#111827;
+  border-radius:10px;
+  padding:20px;
+  margin:20px auto;
+  max-width:900px;
+  box-shadow:0 0 20px rgba(0,0,0,0.4);
+}
+.card h2,.card h3{margin-bottom:10px;color:#fff}
+
+/* --- TABLE --- */
+table{width:100%;border-collapse:collapse}
+th,td{padding:10px;border-bottom:1px solid #333;text-align:left}
+th{background:#1f2937;color:#38bdf8}
+td{color:#e5e7eb}
+
+/* --- BADGES --- */
+.badge{
+  display:inline-block;
+  padding:5px 10px;
+  border-radius:999px;
+  background:#1f2937;
+  color:#fff;
+  font-size:.9rem;
 }
 
-nav a {
-  color: #f8fafc;
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.3s ease;
-}
-
-nav a:hover {
-  color: #38bdf8;
-}
-
-/* Page wrap */
-.page-wrap {
-  margin-top: 70px; /* push content below navbar */
-  padding: 20px;
-}
-
-/* Cards */
-.card {
-  background: #fff;
-  padding: 20px;
-  margin: 20px auto;
-  max-width: 900px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-.card h2, .card h3 {
-  margin-bottom: 10px;
-}
-
-/* Table */
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-th, td {
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
-  text-align: left;
-}
-
-th {
-  background: #f1f5f9;
-}
-
-.badge {
-  display: inline-block;
-  padding: 5px 10px;
-  border-radius: 8px;
-  background: #e2e8f0;
-  font-size: 0.9rem;
+/* --- Small screens --- */
+@media (max-width: 480px){
+  .page-wrap nav{gap:1rem}
+  body{padding-top:60px}
+  .card{margin:14px auto;padding:16px}
 }

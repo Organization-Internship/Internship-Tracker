@@ -1,41 +1,43 @@
+/* Reset */
 * { 
   margin: 0; 
   padding: 0; 
   box-sizing: border-box; 
 }
 
+/* Body */
 body { 
   font-family: 'Segoe UI', sans-serif; 
-  background: linear-gradient(to right, #0f0c29, #302b63, #24243e); 
+  background: #0f0c29;   /* solid background instead of gradient */
   min-height: 100vh; 
   color: #fff; 
   overflow-y: auto; /* enable vertical scrolling */
   padding: 80px 20px 20px; /* space for navbar + breathing room */
-  display: block; /* reset flex layout */
+  display: block; /* reset flex layout so navbar + cards work */
 }
 
-
-/* Glow Wrapper */
-.glow-wrapper { 
-  padding: 4px; 
-  border-radius: 20px; 
-  background: linear-gradient(270deg, #00F5A0, #00D9F5, #8A2BE2, #FF3C3C, #00F5A0); 
-  background-size: 600% 600%; 
-  animation: borderGlow 10s ease infinite; 
-  transition: transform 0.3s ease, box-shadow 0.3s ease; 
+/* Glow Wrapper (fixed from login.css) */
+.glow-wrapper {
+  padding: 4px;
+  border-radius: 20px;
+  background: linear-gradient(270deg, #00F5A0, #00D9F5, #8A2BE2, #FF3C3C, #00F5A0);
+  background-size: 600% 600%;
+  animation: borderGlow 10s ease infinite;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.glow-wrapper:hover {
+  transform: scale(1.04);
 }
 
-.glow-wrapper:hover { transform: scale(1.04); }
-
-@keyframes borderGlow { 
-  0% { background-position: 0% 50%; } 
-  50% { background-position: 100% 50%; } 
-  100% { background-position: 0% 50%; } 
+@keyframes borderGlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 /* Container */
 .container { 
-  background-color: #111827; 
+  background: linear-gradient(to right, #0f0c29, #302b63, #24243e);  /* gradient moved here */
   border-radius: 15px; 
   padding: 30px 25px; 
   width: 360px; 
@@ -43,15 +45,17 @@ body {
   box-shadow: 0 0 20px rgba(0,0,0,0.5); 
 }
 
+
 .form-box { display: none; }
 .form-box.active { display: block; }
 
-h2 { 
+h1, h2 { 
   text-align: center; 
   margin-bottom: 20px; 
   font-size: 26px; 
 }
 
+/* Inputs */
 input, select, textarea { 
   width: 100%; 
   padding: 12px; 
@@ -62,9 +66,9 @@ input, select, textarea {
   color: #fff; 
   font-size: 15px; 
 }
-
 input::placeholder, textarea::placeholder { color: #aaa; }
 
+/* Buttons */
 button { 
   width: 100%; 
   padding: 12px; 
@@ -78,51 +82,35 @@ button {
   margin-top: 10px; 
   transition: 0.3s; 
 }
+button:hover { background: linear-gradient(to right, #00c6ff, #0072ff); }
 
-button:hover { 
-  background: linear-gradient(to right, #00c6ff, #0072ff); 
-}
-
+/* Toggle Text */
 .toggle-text { 
   text-align: center; 
   margin-top: 15px; 
   font-size: 14px; 
   color: #ccc; 
 }
-
 .toggle-text a { 
   color: #00c6ff; 
   cursor: pointer; 
   text-decoration: none; 
 }
 
-.password-wrapper { 
-  position: relative; 
-  margin-bottom: 5px; 
-}
-
-.forgot-container { 
-  display: flex; 
-  justify-content: flex-end; 
-  margin-top: 4px; 
-}
-
-.forgot-password { 
-  font-size: 13px; 
-  color: #00c6ff; 
-  text-decoration: none; 
-}
-
-.forgot-password:hover { 
-  text-decoration: underline; 
-}
+/* Password + Forgot */
+.password-wrapper { position: relative; margin-bottom: 5px; }
+.forgot-container { display: flex; justify-content: flex-end; margin-top: 4px; }
+.forgot-password { font-size: 13px; color: #00c6ff; text-decoration: none; }
+.forgot-password:hover { text-decoration: underline; }
 
 /* Responsive */
 @media (max-width: 420px) { 
   .container { width: 90%; } 
 }
 
-/* Page wrap / Navbar */
+/* ================= */
+/* Navbar / Pagewrap */
+/* ================= */
 .page-wrap { 
   width: 100%; 
   background-color: rgba(0, 0, 0, 0.3); 
@@ -174,7 +162,9 @@ button:hover {
 
 .page-wrap nav a:last-child { margin-left: auto; }
 
-/* Cards, Tables, Badges */
+/* ================== */
+/* Cards / Tables UI  */
+/* ================== */
 .card { 
   background:#111827; 
   border-radius: 10px; 
@@ -183,7 +173,11 @@ button:hover {
   margin-bottom: 16px; 
 }
 
-nav a { color:#00c6ff; margin-right: 12px; text-decoration: none; }
+nav a { 
+  color:#00c6ff; 
+  margin-right: 12px; 
+  text-decoration: none; 
+}
 
 table { 
   width: 100%; 
@@ -205,26 +199,10 @@ th, td {
 
 .small { font-size: 13px; color:#cbd5e1; }
 
-/* ============================= */
-/* NEW: 3D iframe decoration box */
-/* ============================= */
-.decor-iframe {
-  position: absolute;
-  width: 320px;
-  height: 240px;
-  border: none;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 0 20px rgba(0,0,0,0.4);
-  z-index: 0; /* keeps it behind login form */
+/*Profile Image*/
+.profile-img-container {
+  display: flex; flex-direction: column; margin-bottom: 1em; margin-left: auto; align-items: right;
 }
-
-.decor-top-right {
-  top: 10%;
-  right: 8%;
-}
-
-.decor-bottom-left {
-  bottom: 8%;
-  left: 6%;
+.profile-img-container img {
+  width: 120px; height: 120px; object-fit: cover; border-radius: 50%; border: 2px solid #ccc; cursor: pointer; margin-left: auto;
 }

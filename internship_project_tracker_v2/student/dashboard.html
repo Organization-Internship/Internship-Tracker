@@ -4,10 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Student Dashboard</title>
-  <link rel="stylesheet" href="../public/css/dashboard.css">
+  <link rel="stylesheet" href="../public/css/style.css">
 </head>
 <body>
-  
+
+  <!-- ✅ Navbar wrapper only -->
   <div class="page-wrap">
     <nav>
       <a href="../student/dashboard.html">Home</a>
@@ -16,7 +17,10 @@
       <a href="../student/profile.html">Profile</a>
       <a href="../php/auth/logout.php">Logout</a>
     </nav>
+  </div>
 
+  <!-- ✅ Content outside page-wrap so it scrolls -->
+  <main>
     <div class="card">
       <h2>Welcome, Student</h2>
       <p>Your stats and quick links.</p>
@@ -31,7 +35,7 @@
         <tbody></tbody>
       </table>
     </div>
-  </div> <!-- ✅ properly closes page-wrap -->
+  </main>
 
   <script>
     async function loadApps(){

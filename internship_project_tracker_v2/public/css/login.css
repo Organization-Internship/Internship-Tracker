@@ -99,3 +99,57 @@ button:hover { background: linear-gradient(to right, #00c6ff, #0072ff); }
 @media (max-width: 420px) {
   .container { width: 90%; }
 }
+
+/* ================= */
+/* Navbar / Pagewrap */
+/* ================= */
+.page-wrap { 
+  width: 100%; 
+  background-color: rgba(0, 0, 0, 0.3); 
+  position: fixed; 
+  top: 0; 
+  left: 0; 
+  z-index: 1000; 
+}
+
+.page-wrap nav { 
+  display: flex; 
+  align-items: center; 
+  height: 60px; 
+  padding: 0 20px; 
+  position: relative; 
+}
+
+.page-wrap nav::after { 
+  content: ""; 
+  position: absolute; 
+  bottom: 0; 
+  left: 0; 
+  height: 4px; 
+  width: 100%; 
+  background: linear-gradient(270deg, #00F5A0, #00D9F5, #8A2BE2, #FF3C3C, #00F5A0); 
+  background-size: 600% 600%; 
+  animation: lineMove 8s ease infinite; 
+}
+
+@keyframes lineMove { 
+  0% { background-position: 0% 50%; } 
+  50% { background-position: 100% 50%; } 
+  100% { background-position: 0% 50%; } 
+}
+
+.page-wrap nav a { 
+  color: white; 
+  text-decoration: none; 
+  font-size: 16px; 
+  padding: 10px 15px; 
+  font-weight: 500; 
+  transition: transform 0.2s ease-in-out, color 0.3s ease; 
+}
+
+.page-wrap nav a:hover { 
+  transform: scale(1.05); 
+  color: #fffacd; 
+}
+
+.page-wrap nav a:last-child { margin-left: auto; }

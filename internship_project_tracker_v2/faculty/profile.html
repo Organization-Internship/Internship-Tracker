@@ -17,8 +17,15 @@
     <a href="../faculty/profile.html">Profile</a>
     <a href="../php/auth/logout.php">Logout</a>
   </nav>
+</div>
+<div>
   <div class="card">
     <h2>My Profile</h2>
+    <div class="profile-img-container">
+        <img id="profileImg" src="../public/img/default_avatar.png" alt="Profile Image" onclick="document.getElementById('profileImgInput').click();">
+        <input type="file" name="profile_image" id="profileImgInput" accept="image/*" style="display:none">
+        <small>Click image to change</small>
+    </div>
     <form id="profileForm">
       <input name="name" placeholder="Name">
       <input name="department" placeholder="Department">

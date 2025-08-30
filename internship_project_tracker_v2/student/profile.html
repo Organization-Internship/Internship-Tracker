@@ -5,14 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Student Profile</title>
   <link rel="stylesheet" href="../public/css/style.css">
-  <style>
-    .profile-img-container {
-      display: flex; flex-direction: column; margin-bottom: 1em; margin-left: auto;
-    }
-    .profile-img-container img {
-      width: 120px; height: 120px; object-fit: cover; border-radius: 50%; border: 2px solid #ccc; cursor: pointer; margin-left: auto;
-    }
-  </style>
 </head>
 <body>
   <div class="page-wrap">
@@ -23,6 +15,8 @@
       <a href="../student/profile.html">Profile</a>
       <a href="../php/auth/logout.php">Logout</a>
     </nav>
+  </div>
+  <div>  
     <div class="card">
       <h2>My Profile</h2>
       <div class="profile-img-container">
@@ -64,7 +58,7 @@
         if (u.profile_image_path) {
           document.getElementById('profileImg').src = u.profile_image_path;
         } else {
-          document.getElementById('profileImg').src = '../public/img/default_avatar.png';
+          document.getElementById('profileImg').src = '../uploads/profile_images/profile_4.jpeg';
         }
       }
     }
