@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Company Mentees</title>
+  <link rel="stylesheet" href="../public/css/style.css" />
+</head>
+<body>
+  <div class="page-wrap">
+    <nav>
+    <a href="../company/dashboard.html">Home</a>
+    <a href="../company/post_internship.html">Post Internship</a>
+    <a href="../company/mentees.html">Mentees</a>
+    <a href="../company/profile.html">Profile</a>
+    <a href="../php/auth/logout.php">Logout</a>
+    </nav>
+
+    <h2>Applicants for My Internships</h2>
+<table border="1" cellpadding="8" cellspacing="0" id="menteesTable">
+  <thead>
+    <tr>
+      <th>Student</th>
+      <th>Email</th>
+      <th>Internship</th>
+      <th>Status</th>
+      <th>Applied At</th>
+      <th>Resume</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+<script>
+async function loadMentees() {
+  const res = await fetch("../php/mentorship/company_mentees.php");
+  const data = await res.json();
+  const tbody = document.querySelector("#menteesTable tbody");
+  tbody.innerHTML = "";
+
+  if (data.status === "success" && data.applications.length > 0) {
+    data.applications.forEach(app => {
+      tbody.innerHTML += `
+        <tr>
+          <td>${app.student_name}</td>
+          <td>${app.student_email}</td>
+          <td>${app.internship_title}</td>
+          <td>${app.status}</td>
+          <td>${app.applied_at}</td>
+          <td>
+            ${app.resume_path ? `<a href="../../uploads/resumes/${app.resume_path}" target="_blank">Download</a>` : "<em>Not uploaded</em>"}
+          </td>
+        </tr>`;
+    });
+  } else {
+    tbody.innerHTML = `<tr><td colspan="6">No applications found.</td></tr>`;
+  }
+}
+async function updateStatus(appId, action) {
+  const formData = new URLSearchParams();
+  formData.append("application_id", appId);
+  formData.append("action", action);
+
+  const res = await fetch("../php/mentorship/company_mentees.php", {
+    method: "POST",
+    body: formData
+  });
+
+  const data = await res.json();
+  alert(data.message);
+  loadMentees();
+}
+
+document.addEventListener("DOMContentLoaded", loadMentees);
+</script>
+</body>
+</html>

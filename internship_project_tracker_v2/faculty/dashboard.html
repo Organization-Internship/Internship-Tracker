@@ -19,6 +19,41 @@
   </nav>
   <div class="card"><h2>Faculty Dashboard</h2><p>Post internships and monitor mentees.</p></div>
 </div>
+<div class="card">
+  <h3>My Posted Internships</h3>
+  <table id="postedInternships">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Type</th>
+        <th>Stipend</th>
+        <th>Duration</th>
+        <th>Skills</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+<script>async function loadPostedInternships(){
+  const res = await fetch('../php/internships/list.php?mine=1', {credentials:'include'});
+  const data = await res.json();
+  const tb = document.querySelector('#postedInternships tbody');
+  tb.innerHTML = '';
 
+  (data.internships || []).forEach(i => {
+    tb.innerHTML += `
+      <tr>
+        <td>${i.title}</td>
+        <td>${i.kind || ''}</td>
+        <td>${i.stipend || ''}</td>
+        <td>${i.duration || ''}</td>
+        <td>${i.skills_required || ''}</td>
+      </tr>`;
+  });
+}
+
+// Load posted internships on page ready
+loadPostedInternships();
+</script>
 </body>
 </html>

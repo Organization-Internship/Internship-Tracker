@@ -3,14 +3,32 @@ async function postForm(url, form) {
   const res = await fetch(url, { method: 'POST', body: fd, credentials: 'include' });
   return res.json();
 }
+async function login(email, password) {
+  const formData = new FormData();
+  formData.append('email', email);
+  formData.append('password', password);
+
+  const res = await fetch('/php/auth/login.php', {
+    method: 'POST',
+    body: formData,
+    credentials: 'include' // ✅ critical for session
+  });
+
+  const data = await res.json();
+  console.log(data);
+  return data;
+}
+
+
 const msg = (t)=>{ const el=document.getElementById('msg'); if(el) el.textContent=t; };
 
 const loginForm = document.getElementById('loginForm');
 if (loginForm) loginForm.addEventListener('submit', async (e)=>{
   e.preventDefault();
   try{
-    const data = await postForm('../php/auth/login.php', loginForm);
+    const data = await postForm('/php/auth/login.php', loginForm);
     if (data.status==='success'){
+      const role = data.role?.toLowerCase().trim();
       if (data.role==='student') location.href='../student/dashboard.html';
       else if (data.role==='faculty') location.href='../faculty/dashboard.html';
       else if (data.role==='company') location.href='../company/dashboard.html';
@@ -23,9 +41,9 @@ const registerForm = document.getElementById('registerForm');
 if (registerForm) registerForm.addEventListener('submit', async (e)=>{
   e.preventDefault();
   try{
-    const data = await postForm('../php/auth/register.php', registerForm);
+    const data = await postForm('/php/auth/register.php', registerForm);
     msg(data.message||'Done');
-    if (data.status==='success') location.href='../public/login.html';
+    if (data.status==='success') location.href='login.html';
   } catch(err){ msg('Network error'); }
 });
 

@@ -1,7 +1,12 @@
 <?php
 require_once __DIR__.'/../config.php'; require_once __DIR__.'/../utils/session.php'; require_login(); $u=current_user();
 $apiKey=getenv('OPENROUTER_API_KEY');
-function create_internship($t,$d,$uid,$stip,$dur,$skills,$kind='ai'){ $conn=db(); $stmt=$conn->prepare("INSERT INTO internships(title, description, posted_by_user_id, kind, stipend, duration, skills_required) VALUES (?,?,?,?,?,?,?)"); $stmt->bind_param('sssisss',$t,$d,$uid,$kind,$stip,$dur,$skills); $stmt->execute(); }
+function create_internship($t,$d,$mentor_id,$stip,$dur,$skills,$kind='ai'){ $conn=db(); $stmt=$conn->prepare("INSERT INTO internships(title, description, mentor_id, posted_by_user_id, kind, stipend, duration, skills_required) VALUES (?,?,?,?,?,?,?,?)"); $posted_by_user_id = $mentor_id;
+
+    $stmt->bind_param(
+        'ssiissss', // s=string, i=int
+        $t, $d, $mentor_id, $posted_by_user_id, $kind, $stip, $dur, $skills
+    ); $stmt->execute(); }
 if($apiKey){
   $payload=[
     "model"=>"openai/gpt-4o-mini",

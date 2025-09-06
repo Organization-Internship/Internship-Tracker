@@ -1,7 +1,9 @@
 <?php
+session_start();
 require_once __DIR__.'/../config.php';
 require_once __DIR__.'/../utils/session.php';
 require_login();
+
 $u = current_user();
 $conn = db();
 
@@ -23,4 +25,3 @@ if ($user['role'] === 'student') {
 }
 
 echo json_encode(['status' => 'success', 'user' => $user]);
-?>

@@ -4,8 +4,45 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login</title>
-  <link rel="stylesheet" href="../public/css/login.css">
-  <script defer src="../public/js/auth.js"></script>
+  <link rel="stylesheet" href="css/login.css">
+  <script defer>
+  async function postForm(url, form) {
+    const fd = new FormData(form);
+    const res = await fetch(url, { method: 'POST', body: fd, credentials: 'include' });
+    return res.json();
+  }
+
+  const msg = (t)=>{ 
+    const el=document.getElementById('msg'); 
+    if(el) el.textContent=t; 
+  };
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) loginForm.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      try {
+        const data = await postForm('../php/auth/login.php', loginForm);
+
+        if (data.status === 'success') {
+          if (data.role === 'student') {
+            location.href = '../student/dashboard.html';
+          } else if (data.role === 'faculty') {
+            location.href = '../faculty/dashboard.html';
+          } else if (data.role === 'company') {
+            location.href = '../company/dashboard.html';
+          } else {
+            msg('Unknown role');
+          }
+        } else {
+          msg(data.message || 'Login failed');
+        }
+      } catch (err) {
+        msg('Network error');
+      }
+    });
+  });
+  </script>
 </head>
 <body>
 
@@ -18,11 +55,10 @@
       <div class="forgot-container"><a class="forgot-password" href="../public/forgot.html">Forgot password?</a></div>
       <button type="submit">Login</button>
     </form>
-    <p class="toggle-text">Don't have an account? <a href="../public/register.html">Register</a></p>
+    <p class="toggle-text">Don't have an account? <a href="register.html">Register</a></p>
     <div id="msg" style="margin-top:10px;"></div>
   </div>
 </div>
-
 
 </body>
 </html>

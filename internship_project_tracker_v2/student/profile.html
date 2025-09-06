@@ -16,27 +16,32 @@
       <a href="../php/auth/logout.php">Logout</a>
     </nav>
   </div>
-  <div>  
-    <div class="card">
-      <h2>My Profile</h2>
-      <div class="profile-img-container">
-        <img id="profileImg" src="../public/img/default_avatar.png" alt="Profile Image" onclick="document.getElementById('profileImgInput').click();">
-        <input type="file" name="profile_image" id="profileImgInput" accept="image/*" style="display:none">
-        <small>Click image to change</small>
-      </div>
-      <form id="profileForm" enctype="multipart/form-data">
-        <input name="name" placeholder="Name">
-        <input name="phone" placeholder="Phone">
-        <input name="year" placeholder="Year (e.g., 3rd)">
-        <input name="branch" placeholder="Branch (e.g., CSE)">
-        <input name="linkedin" placeholder="LinkedIn URL">
-        <input name="github" placeholder="GitHub URL">
-        <label>Resume (PDF): <input type="file" name="resume" accept="application/pdf"></label>
-        <button type="submit">Update</button>
-      </form>
-      <div id="resumeLink"></div>
+
+  <div class="card">
+    <h2>My Profile</h2>
+    <div class="profile-img-container">
+      <img id="profileImg" src="../public/img/default_avatar.png" alt="Profile Image" 
+           onclick="document.getElementById('profileImgInput').click();">
+      <input type="file" name="profile_image" id="profileImgInput" accept="image/*" style="display:none">
+      <small>Click image to change</small>
     </div>
+
+    <!-- ✅ ONE form only -->
+    <form id="profileForm" enctype="multipart/form-data">
+      <input type="text" name="name" placeholder="Name">
+      <input type="text" name="phone" placeholder="Phone">
+      <input type="text" name="year" placeholder="Year (e.g., 3rd)">
+      <input type="text" name="branch" placeholder="Branch (e.g., CSE)">
+      <input type="url"  name="linkedin" placeholder="LinkedIn URL">
+      <input type="url"  name="github" placeholder="GitHub URL">
+      <label>Resume (PDF): <input type="file" name="resume" accept="application/pdf"></label>
+      <button type="submit">Update Profile</button>
+    </form>
+
+    <div id="resumeLink"></div>
+    <div id="msg" style="margin-top:10px; color:green;"></div>
   </div>
+
   <script>
     async function loadProfile() {
       const r = await fetch('../php/users/get_profile.php', {credentials: 'include'});
@@ -49,55 +54,90 @@
         document.querySelector('[name=branch]').value = u.branch || '';
         document.querySelector('[name=linkedin]').value = u.linkedin || '';
         document.querySelector('[name=github]').value = u.github || '';
+
         if (u.resume_path) {
           document.getElementById('resumeLink').innerHTML =
-            '<a href="' + u.resume_path + '" target="_blank">View Resume</a>';
+            `<a href="${u.resume_path}" target="_blank">View Resume</a>`;
         } else {
           document.getElementById('resumeLink').innerHTML = '';
         }
-        if (u.profile_image_path) {
-          document.getElementById('profileImg').src = u.profile_image_path;
-        } else {
-          document.getElementById('profileImg').src = '../uploads/profile_images/profile_4.jpeg';
-        }
+
+        document.getElementById('profileImg').src = u.profile_image_path || '../public/img/default_avatar.png';
       }
     }
 
+    // ✅ Form submit handler
     document.getElementById('profileForm').addEventListener('submit', async e => {
       e.preventDefault();
-      const r = await fetch(
-        '../php/users/update_profile.php',
-        {method: 'POST', body: new FormData(e.target), credentials: 'include'}
-      );
-      const d = await r.json();
-      alert(d.message || 'Updated');
-      loadProfile();
-    });
+      const fd = new FormData(e.target);
 
-    document.getElementById('profileImgInput').addEventListener('change', async function () {
-      const fd = new FormData();
-      fd.append('profile_image', this.files[0]);
-      // Append all other current form values as well
-      const form = document.getElementById('profileForm');
-      ['name', 'phone', 'year', 'branch', 'linkedin', 'github', 'resume'].forEach(field => {
-        if (form[field] && form[field].type !== 'file') {
-          fd.append(field, form[field].value);
-        }
-      });
-      if (form['resume'] && form['resume'].files.length > 0) {
-        fd.append('resume', form['resume'].files[0]);
-      }
-      const r = await fetch('../php/users/update_profile.php', {
+      const res = await fetch('../php/users/update_profile.php', {
         method: 'POST',
         body: fd,
         credentials: 'include'
       });
-      const d = await r.json();
-      alert(d.message || 'Image updated');
+      const d = await res.json();
+
+      document.getElementById('msg').textContent = d.message || 'Profile updated';
+      loadProfile();
+    });
+
+    // ✅ Profile image change handler
+    document.getElementById('profileImgInput').addEventListener('change', async function () {
+      const fd = new FormData(document.getElementById('profileForm'));
+      if (this.files.length > 0) {
+        fd.set('profile_image', this.files[0]);
+      }
+
+      const res = await fetch('../php/users/update_profile.php', {
+        method: 'POST',
+        body: fd,
+        credentials: 'include'
+      });
+      const d = await res.json();
+
+      document.getElementById('msg').textContent = d.message || 'Image updated';
       loadProfile();
     });
 
     loadProfile();
   </script>
+ <body>
+  <h2>Profile</h2>
+  <p>Name: <span id="name"></span></p>
+  <p>Email: <span id="email"></span></p>
+  <p>Phone: <span id="phone"></span></p>
+
+  <!-- Profile JS -->
+  <script>
+  async function loadProfile() {
+      try {
+          const res = await fetch('../php/users/get_profile.php', { credentials: 'include' });
+          if (!res.ok) throw new Error('Not logged in');
+          const data = await res.json();
+          if(data.status === 'success'){
+              displayProfile(data.user);
+              localStorage.setItem('lastProfile', JSON.stringify(data.user));
+          }
+      } catch (err) {
+          console.warn('Cannot load profile from server, using cached data.');
+          const cached = localStorage.getItem('lastProfile');
+          if(cached){
+              const user = JSON.parse(cached);
+              displayProfile(user);
+          }
+      }
+  }
+
+  function displayProfile(user){
+      document.getElementById('name').textContent = user.name || '';
+      document.getElementById('email').textContent = user.email || '';
+      document.getElementById('phone').textContent = user.phone || '';
+  }
+
+  document.addEventListener('DOMContentLoaded', loadProfile);
+  </script>
+</body>
+ 
 </body>
 </html>

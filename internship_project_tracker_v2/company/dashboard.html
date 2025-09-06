@@ -5,19 +5,115 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Company Dashboard</title>
   <link rel="stylesheet" href="../public/css/style.css">
-  
 </head>
 <body>
-  
+
 <div class="page-wrap">
   <nav>
     <a href="../company/dashboard.html">Home</a>
     <a href="../company/post_internship.html">Post Internship</a>
+    <a href="../php/mentorship/company_mentees.php">Mentees</a>
     <a href="../company/profile.html">Profile</a>
     <a href="../php/auth/logout.php">Logout</a>
   </nav>
   <div class="card"><h2>Company Dashboard</h2><p>Post and manage internships.</p></div>
 </div>
 
+<!-- Company Internships Table -->
+<div>
+  <table id="companyInternships">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Type</th>
+        <th>Stipend</th>
+        <th>Duration</th>
+        <th>Skills</th>
+        <th>Applicants</th>
+        <th>Posted By</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<script>
+async function loadCompanyInternships() {
+    try {
+        const res = await fetch('../php/internships/list.php?mine=1', { credentials: 'include' });
+        const data = await res.json();
+        const tb = document.querySelector('#companyInternships tbody');
+        tb.innerHTML = '';
+
+        if (data.status === 'success' && Array.isArray(data.internships)) {
+            data.internships.forEach(int => {
+                // If there are no applications, just show internship info
+                if (!int.applications || int.applications.length === 0) {
+                    tb.innerHTML += `<tr>
+                        <td>${int.title}</td>
+                        <td>${int.kind}</td>
+                        <td>${int.stipend || '-'}</td>
+                        <td>${int.duration || '-'}</td>
+                        <td>${int.skills_required || '-'}</td>
+                        <td>0</td>
+                        <td>${int.posted_by}</td>
+                        <td>-</td>
+                    </tr>`;
+                } else {
+                    int.applications.forEach(a => {
+                        tb.innerHTML += `<tr id="app-${a.application_id}">
+                            <td>${int.title}</td>
+                            <td>${int.kind}</td>
+                            <td>${int.stipend || '-'}</td>
+                            <td>${int.duration || '-'}</td>
+                            <td>${int.skills_required || '-'}</td>
+                            <td>${int.applicant_count || 0}</td>
+                            <td>${int.posted_by}</td>
+                            <td>
+                                <button class="status-btn" onclick="updateStatusCompany(${a.application_id}, 'selected')">Approve</button>
+                                <button class="status-btn" onclick="updateStatusCompany(${a.application_id}, 'rejected')">Reject</button>
+                            </td>
+                            <td>
+                                   ${a.resume_path 
+                                       ? `<a href="/${a.resume_path.replace(/^\/+/, '')}" target="_blank">Download</a>` 
+                                               : 'No resume'}
+
+                            </td>
+                        </tr>`;
+                    });
+                }
+            });
+        } else {
+            tb.innerHTML = `<tr><td colspan="8">No internships posted yet</td></tr>`;
+        }
+    } catch (err) {
+        console.error('Failed to load company internships:', err);
+    }
+}
+
+async function updateStatusCompany(appId, status) {
+    try {
+        const res = await fetch('../php/internships/update_status.php', {
+            method: 'POST',
+            body: new URLSearchParams({ application_id: appId, status }),
+            credentials: 'include'
+        });
+        const data = await res.json();
+        alert(data.message);
+
+        if (data.status === 'success') {
+            // Disable buttons after status update
+            const row = document.querySelector(`#app-${appId}`);
+            row.querySelectorAll('button.status-btn').forEach(btn => btn.disabled = true);
+        }
+    } catch (err) {
+        console.error(err);
+        alert('Failed to update application status');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', loadCompanyInternships);
+</script>
 </body>
 </html>

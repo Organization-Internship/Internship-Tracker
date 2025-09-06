@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Post Internship</title>
   <link rel="stylesheet" href="../public/css/style.css">
-  
 </head>
 <body>
   
@@ -18,6 +17,7 @@
     <a href="../php/auth/logout.php">Logout</a>
   </nav>
 </div>
+
 <div>
   <div class="card">
     <h2>Post Internship</h2>
@@ -31,30 +31,97 @@
       <button type="button" onclick="genAI()">Generate with AI</button>
     </form>
   </div>
+
   <div class="card">
     <h2>Your Posted Internships</h2>
-    <table id="ilist"><thead><tr><th>Title</th><th>Type</th><th>Stipend</th><th>Duration</th><th>Applicants</th></tr></thead><tbody></tbody></table>
+    <table id="ilist">
+      <thead>
+        <tr>
+          <th>Title</th><th>Type</th><th>Stipend</th><th>Duration</th><th>Applicants</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
   </div>
 </div>
+
 <script>
 async function genAI(){
-  const r=await fetch('../php/internships/generate_ai.php',{method:'POST',credentials:'include'});
-  const d=await r.json(); alert(d.message||'Generated'); loadMine();
+  try {
+    const r = await fetch("../php/internships/generate_ai.php", {
+      method: "POST",
+      credentials: "include"
+    });
+    const d = await r.json().catch(() => ({}));
+    alert(d.message || "Generated");
+    loadMine();
+  } catch (err) {
+    console.error("AI error:", err);
+  }
 }
+async function loadPostedInternships() {
+  const tb = document.querySelector("#postedInternships tbody");
+  tb.innerHTML = "";
+  try {
+    const res = await fetch("../php/internships/list.php?mine=1", { credentials: "include" });
+    const data = await res.json();
+    (data.internships || []).forEach(x => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${x.title}</td>
+        <td>${x.kind || ""}</td>
+        <td>${x.stipend || ""}</td>
+        <td>${x.duration || ""}</td>
+        <td>${x.skills_required || ""}</td>
+      `;
+      tb.appendChild(tr);
+    });
+  } catch(err) {
+    console.error("Dashboard internships load error:", err);
+  }
+}
+
 async function loadMine(){
-  const r=await fetch('../php/internships/list.php?mine=1',{credentials:'include'});
-  const d=await r.json();
-  const tb=document.querySelector('#ilist tbody');
-  tb.innerHTML=(d.internships||[]).map(x=>`<tr>
-    <td>${x.title}</td><td>${x.kind}</td><td>${x.stipend||''}</td><td>${x.duration||''}</td><td>${x.applicant_count||0}</td>
-  </tr>`).join('');
+  try {
+    const r = await fetch("../php/internships/list.php?mine=1", {
+      credentials: "include"
+    });
+    const d = await r.json().catch(() => ({}));
+    const tb = document.querySelector("#ilist tbody");
+    tb.innerHTML = (d.internships || [])
+      .map(x => `<tr>
+        <td>${x.title}</td>
+        <td>${x.kind || ""}</td>
+        <td>${x.stipend || ""}</td>
+        <td>${x.duration || ""}</td>
+        <td>${x.applicant_count || 0}</td>
+      </tr>`)
+      .join("");
+  } catch (err) {
+    console.error("List error:", err);
+  }
 }
-document.getElementById('postForm').addEventListener('submit', async e=>{
+
+document.getElementById("postForm").addEventListener("submit", async e => {
   e.preventDefault();
-  const r=await fetch('../php/internships/create.php',{method:'POST',body:new FormData(e.target),credentials:'include'});
-  const d=await r.json(); alert(d.message||'Created'); loadMine();
+  const fd = new FormData(e.target);
+  try {
+    const r = await fetch("../php/internships/create.php", {
+      method: "POST",
+      body: fd,
+      credentials: "include"
+    });
+    const d = await r.json().catch(() => ({}));
+    alert(d.message || "Created");
+    loadMine();
+  } catch (err) {
+    console.error("Create error:", err);
+  }
 });
+
 loadMine();
+loadPostedInternships();
+
 </script>
 
 </body>

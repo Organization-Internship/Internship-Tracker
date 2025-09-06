@@ -1,13 +1,56 @@
 <?php
-require_once __DIR__.'/../config.php'; require_once __DIR__.'/../utils/session.php'; require_login(); $u=current_user();
-$title=trim($_POST['title']??''); $tech=trim($_POST['tech_stack']??''); $start=trim($_POST['start_date']??''); $end=trim($_POST['end_date']??''); $status=trim($_POST['status']??'in-progress'); $link=trim($_POST['project_link']??'');
-if(!$title||!$tech||!$start){ echo json_encode(['status'=>'error','message'=>'Title, Tech, Start date required']); exit; }
-$conn=db(); $stmt=$conn->prepare("INSERT INTO projects(user_id,title,tech_stack,start_date,end_date,status,project_link) VALUES (?,?,?,?,?,?,?)");
-$stmt->bind_param('issssss',$u['id'],$title,$tech,$start,$end,$status,$link); $stmt->execute(); $pid=$stmt->insert_id;
-if(!empty($_FILES['file']['name'])){
-  $safe=preg_replace('/[^a-zA-Z0-9_.-]/','_', $_FILES['file']['name']); $destDir=__DIR__.'/../../uploads/projects/'; if(!is_dir($destDir)) mkdir($destDir,0777,true);
-  $dest=$destDir.$pid.'_'+$safe;
-  if(move_uploaded_file($_FILES['file']['tmp_name'],$dest)){ $rel='/uploads/projects/'.$pid.'_'.$safe; $stmt2=$conn->prepare("INSERT INTO project_files(project_id,file_path) VALUES (?,?)"); $stmt2->bind_param('is',$pid,$rel); $stmt2->execute(); }
+require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/../utils/session.php';
+require_login();
+
+header('Content-Type: application/json');
+
+$conn = db();
+$u = current_user();
+
+try {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $title       = trim($_POST['title'] ?? '');
+        $tech_stack  = trim($_POST['tech_stack'] ?? '');
+        $start_date  = $_POST['start_date'] ?? null;
+        $end_date    = $_POST['end_date'] ?? null;
+        $status      = $_POST['status'] ?? 'in-progress';
+        $project_link = trim($_POST['project_link'] ?? '');
+        $file_path   = null;
+
+        if (!$title || !$tech_stack || !$start_date) {
+            http_response_code(400);
+            echo json_encode(['status'=>'error','message'=>'Missing required fields']);
+            exit;
+        }
+
+        // ✅ Handle file upload
+        if (!empty($_FILES['file']['name'])) {
+            $uploadDir = __DIR__ . '/../../uploads/projects/';
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
+            $fname = time() . '_' . basename($_FILES['file']['name']);
+            $target = $uploadDir . $fname;
+            if (move_uploaded_file($_FILES['file']['tmp_name'], $target)) {
+                $file_path = 'uploads/projects/' . $fname;
+            }
+        }
+
+        // ✅ Insert into DB
+        $stmt = $conn->prepare("INSERT INTO projects 
+            (user_id, title, tech_stack, start_date, end_date, status, project_link, created_at) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("isssssss", $u['id'], $title, $tech_stack, $start_date, $end_date, $status, $project_link, $created_at);
+
+        if ($stmt->execute()) {
+            echo json_encode(['status'=>'success','message'=>'Project created successfully']);
+        } else {
+            http_response_code(500);
+            echo json_encode(['status'=>'error','message'=>'Failed to create project']);
+        }
+    }
+} catch (Exception $e) {
+    http_response_code(500);
+    echo json_encode(['status'=>'error','message'=>$e->getMessage()]);
 }
-echo json_encode(['status'=>'success','message'=>'Project saved']);
-?>

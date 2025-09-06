@@ -172,6 +172,19 @@ button:hover { background: linear-gradient(to right, #00c6ff, #0072ff); }
   box-shadow: 0 0 20px rgba(0,0,0,0.4); 
   margin-bottom: 16px; 
 }
+nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  z-index: 1000;
+}
+
+body {
+  padding-top: 80px;  /* leave space so content doesn’t hide under navbar */
+}
+
 
 nav a { 
   color:#00c6ff; 
@@ -196,6 +209,23 @@ th, td {
   border-radius:999px; 
   background:#1f2937; 
 }
+main {
+  margin-top: 80px; /* push content below navbar */
+  padding: 20px;
+  min-height: calc(100vh - 80px); /* ensure it grows */
+  overflow-y: auto; /* allow scrolling */
+}
+html, body {
+  height: auto !important;
+  min-height: 100% !important;
+  overflow-y: auto !important;
+}
+
+.page-wrap {
+  position: relative;  /* instead of fixed */
+}
+
+
 
 .small { font-size: 13px; color:#cbd5e1; }
 
