@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Post Internship</title>
+  <link rel="stylesheet" href="../public/css/style.css">
+</head>
+<body>
+  
+<div class="page-wrap">
+  <nav>
+    <a href="../faculty/dashboard.html">Home</a>
+    <a href="../faculty/post_internship.html">Post Internship</a>
+    <a href="../faculty/mentees.html">Mentees</a>
+    <a href="../faculty/profile.html">Profile</a>
+    <a href="../php/auth/logout.php">Logout</a>
+  </nav>
+</div>
+
+<div>
+  <div class="card">
+    <h2>Post Internship</h2>
+    <form id="postForm">
+      <input name="title" placeholder="Title" required>
+      <textarea name="description" placeholder="Description" rows="4"></textarea>
+      <input name="stipend" placeholder="Stipend (e.g., ₹5000/month)">
+      <input name="duration" placeholder="Duration (e.g., 8 weeks)">
+      <input name="skills_required" placeholder="Skills (comma separated)">
+      <button type="submit">Create</button>
+      <button type="button" onclick="genAI()">Generate with AI</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>Your Posted Internships</h2>
+    <table id="ilist">
+      <thead>
+        <tr>
+          <th>Title</th><th>Type</th><th>Stipend</th><th>Duration</th><th>Applicants</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+async function genAI(){
+  try {
+    const r = await fetch("../php/internships/generate_ai.php", {
+      method: "POST",
+      credentials: "include"
+    });
+    const d = await r.json().catch(() => ({}));
+    alert(d.message || "Generated");
+    loadMine();
+  } catch (err) {
+    console.error("AI error:", err);
+  }
+}
+async function loadPostedInternships() {
+  const tb = document.querySelector("#postedInternships tbody");
+  tb.innerHTML = "";
+  try {
+    const res = await fetch("../php/internships/list.php?mine=1", { credentials: "include" });
+    const data = await res.json();
+    (data.internships || []).forEach(x => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${x.title}</td>
+        <td>${x.kind || ""}</td>
+        <td>${x.stipend || ""}</td>
+        <td>${x.duration || ""}</td>
+        <td>${x.skills_required || ""}</td>
+      `;
+      tb.appendChild(tr);
+    });
+  } catch(err) {
+    console.error("Dashboard internships load error:", err);
+  }
+}
+
+async function loadMine(){
+  try {
+    const r = await fetch("../php/internships/list.php?mine=1", {
+      credentials: "include"
+    });
+    const d = await r.json().catch(() => ({}));
+    const tb = document.querySelector("#ilist tbody");
+    tb.innerHTML = (d.internships || [])
+      .map(x => `<tr>
+        <td>${x.title}</td>
+        <td>${x.kind || ""}</td>
+        <td>${x.stipend || ""}</td>
+        <td>${x.duration || ""}</td>
+        <td>${x.applicant_count || 0}</td>
+      </tr>`)
+      .join("");
+  } catch (err) {
+    console.error("List error:", err);
+  }
+}
+
+document.getElementById("postForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  try {
+    const r = await fetch("../php/internships/create.php", {
+      method: "POST",
+      body: fd,
+      credentials: "include"
+    });
+    const d = await r.json().catch(() => ({}));
+    alert(d.message || "Created");
+    loadMine();
+  } catch (err) {
+    console.error("Create error:", err);
+  }
+});
+
+loadMine();
+loadPostedInternships();
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Company Post Internship</title>
+  <link rel="stylesheet" href="../public/css/style.css">
+  
+</head>
+<body>
+  
+<div class="page-wrap">
+  <nav>
+    <a href="../company/dashboard.html">Home</a>
+    <a href="../company/post_internship.html">Post Internship</a>
+    <a href="../company/mentees.html">Mentees</a>
+    <a href="../company/profile.html">Profile</a>
+    <a href="../php/auth/logout.php">Logout</a>
+  </nav>
+  <div class="card">
+    <h2>Post Internship</h2>
+    <form id="postFormC">
+      <input name="title" placeholder="Title" required>
+      <textarea name="description" placeholder="Description" rows="4"></textarea>
+      <input name="stipend" placeholder="Stipend (e.g., ₹5000/month)">
+      <input name="duration" placeholder="Duration (e.g., 8 weeks)">
+      <input name="skills_required" placeholder="Skills (comma separated)">
+      <button type="submit">Create</button>
+      <button type="button" onclick="genAI()">Generate with AI</button>
+    </form>
+  </div>
+</div>
+<script>
+async function genAI(){
+  const r=await fetch('../php/internships/generate_ai.php',{method:'POST',credentials:'include'});
+  const d=await r.json(); alert(d.message||'Generated');
+}
+document.getElementById('postFormC').addEventListener('submit', async e=>{
+  e.preventDefault();
+  const r=await fetch('../php/internships/create.php',{method:'POST',body:new FormData(e.target),credentials:'include'});
+  const d=await r.json(); alert(d.message||'Created');
+});
+</script>
+
+</body>
+</html>

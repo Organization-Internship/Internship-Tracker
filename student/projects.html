@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Projects</title>
+  <link rel="stylesheet" href="../public/css/style.css">
+  
+</head>
+<body>
+  
+<div class="page-wrap">
+  <nav>
+    <a href="../student/dashboard.html">Home</a>
+    <a href="../student/internships.html">Internships</a>
+    <a href="../student/projects.html">Projects</a>
+    <a href="../student/profile.html">Profile</a>
+    <a href="../php/auth/logout.php">Logout</a>
+  </nav>
+  <div class="card">
+    <h2>Create Project</h2>
+    <form id="projForm" enctype="multipart/form-data">
+      <input name="title" placeholder="Project Title" required>
+      <input name="tech_stack" placeholder="Tech Stack (comma separated)" required>
+      <label class="small">Start Date</label>
+      <input type="date" name="start_date" required>
+      <label class="small">End Date</label>
+      <input type="date" name="end_date">
+      <select name="status" required>
+        <option value="in-progress">In Progress</option>
+        <option value="completed">Completed</option>
+      </select>
+      <input name="project_link" placeholder="Project Link (optional)">
+      <input type="file" name="file">
+      <button type="submit">Save</button>
+    </form>
+  </div>
+  <div class="card">
+    <h2>My Projects</h2>
+    <table id="plist"><thead><tr><th>Title</th><th>Tech</th><th>Status</th><th>Dates</th><th>Link</th></tr></thead><tbody></tbody></table>
+  </div>
+</div>
+<script>
+async function loadProjects(){
+  const r=await fetch('../php/projects/list.php?mine=1',{credentials:'include'});
+  const d=await r.json();
+  const tb=document.querySelector('#plist tbody');
+  tb.innerHTML=(d.projects||[]).map(p=>`<tr>
+    <td>${p.title}</td><td>${p.tech_stack}</td><td>${p.status}</td>
+    <td>${p.start_date||''} → ${p.end_date||''}</td>
+    <td>${p.project_link||''}</td>
+  </tr>`).join('');
+}
+const form=document.getElementById('projForm');
+form.addEventListener('submit', async e=>{
+  e.preventDefault();
+  const r=await fetch('../php/projects/create.php',{method:'POST',body:new FormData(form),credentials:'include'});
+  const d=await r.json(); alert(d.message||'Saved'); loadProjects();
+});
+loadProjects();
+</script>
+
+</body>
+</html>

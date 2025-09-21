@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Browse Internships</title>
+<link rel="stylesheet" href="../public/css/style.css">
+<style>
+button:disabled { cursor: not-allowed; }
+</style>
+</head>
+<body>
+
+<div class="page-wrap">
+  <!-- Navbar -->
+  <nav>
+    <a href="../student/dashboard.html">Home</a>
+    <a href="../student/internships.html">Internships</a>
+    <a href="../student/projects.html">Projects</a>
+    <a href="../student/profile.html">Profile</a>
+    <a href="../php/auth/logout.php">Logout</a>
+  </nav>
+
+  <!-- Available Internships -->
+  <div class="card">
+    <h2>Available Internships</h2>
+    <table id="availableInternships">
+      <thead>
+        <tr>
+          <th>Internship</th>
+          <th>Type</th>
+          <th>Stipend</th>
+          <th>Duration</th>
+          <th>Skills</th>
+          <th>Posted By</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+async function loadAvailableInternships() {
+    try {
+        const res = await fetch('../php/internships/list.php', { credentials: 'include' });
+        const data = await res.json();
+        const tbody = document.querySelector('#availableInternships tbody');
+        tbody.innerHTML = '';
+
+        if (data.status === 'success' && Array.isArray(data.internships)) {
+            data.internships.forEach(i => {
+                let btnText = 'Apply';
+                let btnDisabled = '';
+                let fileDisabled = '';
+                let percDisabled = '';
+                let btnStyle = '';
+
+                if (i.applied) {
+                    btnDisabled = i.disableApply ? 'disabled' : '';
+                    fileDisabled = i.disableApply ? 'disabled' : '';
+                    percDisabled = i.disableApply ? 'disabled' : '';
+
+                    if (i.status === 'submitted') btnText = 'Applied';
+                    else if (i.status === 'rejected') { btnText='Rejected'; btnDisabled='disabled'; btnStyle='background-color:#f88;color:#fff;'; }
+                    else if (i.status === 'selected') { btnText='Selected'; btnDisabled='disabled'; btnStyle='background-color:#4caf50;color:#fff;'; }
+                }
+
+                tbody.innerHTML += `<tr>
+                    <td>${i.title}</td>
+                    <td>${i.kind}</td>
+                    <td>${i.stipend || '-'}</td>
+                    <td>${i.duration || '-'}</td>
+                    <td>${i.skills_required || '-'}</td>
+                    <td>${i.posted_by} (${i.poster_role})</td>
+                    <td>
+                        <form class="applyForm" enctype="multipart/form-data" onsubmit="applyInternshipWithResume(event, ${i.id})">
+                            <input type="file" name="resume" accept=".pdf,.doc,.docx" ${fileDisabled} ${!i.applied ? 'required' : ''}>
+                            <input type="number" name="percentage" placeholder="Your % (e.g., 80)" min="0" max="100" ${percDisabled} ${!i.applied ? 'required' : ''}>
+                            <button type="submit" ${btnDisabled} style="${btnStyle}">${btnText}</button>
+                        </form>
+                        <div class="atsInfo" style="margin-top:5px;">
+                            ${i.applied && i.atsScore != null ? `ATS Score: ${i.atsScore}%` : ''}
+                        </div>
+                    </td>
+                </tr>`;
+            });
+        } else {
+            tbody.innerHTML = `<tr><td colspan="7">No internships available</td></tr>`;
+        }
+    } catch(err) {
+        console.error('Failed to load internships:', err);
+    }
+}
+
+// Apply function (updates row without reloading)
+async function applyInternshipWithResume(event, internshipId) {
+    event.preventDefault();
+    const form = event.target;
+    const formData = new FormData(form);
+    formData.append('internship_id', internshipId);
+
+    try {
+        const res = await fetch('../php/internships/apply.php', {
+            method: 'POST',
+            body: formData,
+            credentials: 'include'
+        });
+        const data = await res.json();
+
+        const btn = form.querySelector('button');
+        const atsDiv = form.nextElementSibling;
+
+        if (data.status === 'success') {
+            btn.disabled = true;
+            btn.style.backgroundColor = '#ccc';
+            btn.style.cursor = 'not-allowed';
+            btn.textContent = 'Applied';
+            form.querySelector('input[type="file"]').disabled = true;
+            form.querySelector('input[type="number"]').disabled = true;
+
+            atsDiv.innerHTML = `ATS Score: ${data.atsScore}%`;
+            alert(data.message);
+
+        } else {
+            atsDiv.innerHTML = `<span style="color:red;">${data.message}</span>`;
+            alert(data.message);
+        }
+    } catch(err) {
+        console.error('Error applying:', err);
+        alert('Failed to apply');
+    }
+}
+
+// Init
+document.addEventListener('DOMContentLoaded', () => {
+    loadAvailableInternships();
+});
+</script>
+</body>
+</html>

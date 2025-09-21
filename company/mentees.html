@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Company Mentees</title>
+  <link rel="stylesheet" href="../public/css/style.css">
+</head>
+<body>
+<div class="page-wrap">
+  <nav>
+    <a href="../company/dashboard.html">Home</a>
+    <a href="../company/post_internship.html">Post Internship</a>
+    <a href="../company/mentees.html">Mentees</a>
+    <a href="../company/profile.html">Profile</a>
+    <a href="../php/auth/logout.php">Logout</a>
+  </nav>
+
+  <div class="card">
+    <h2>Your Mentees</h2>
+    <table id="mlist">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Internship</th>
+          <th>Percentage</th>
+          <th>ATS Score</th>
+          <th>Status</th>
+          <th>Actions</th>
+          <th>Resume</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+async function updateStatus(appId, status){
+  const fd = new FormData();
+  fd.append('application_id', appId);
+  fd.append('status', status);
+
+  const r = await fetch('../php/internships/update_status.php', {
+    method:'POST',
+    body: fd,
+    credentials:'include'
+  });
+  const d = await r.json();
+  alert(d.message || 'Updated');
+  loadMentees();
+}
+
+async function loadMentees(){
+  const r = await fetch('../php/mentorship/company_mentees.php',{credentials:'include'});
+  const d = await r.json();
+  const tb = document.querySelector('#mlist tbody');
+  tb.innerHTML = '';
+
+  (d.mentees || []).forEach(app => {
+    tb.innerHTML += `
+      <tr id="app-${app.application_id}">
+        <td>${app.student_name}</td>
+        <td>${app.student_email}</td>
+        <td>${app.internship_title}</td>
+        <td>${app.percentage || '-'}%</td>
+        <td>${app.ats_score || 0}% 
+          ${app.eligible ? '<span style="color:green;">✅ Eligible</span>' : '<span style="color:red;">❌ Not Eligible</span>'}
+        </td>
+        <td>${app.status}</td>
+        <td>
+          ${app.status === "submitted" ? `
+            <button class="status-btn" onclick="updateStatus(${app.application_id},'selected')">Approve</button>
+            <button class="status-btn" onclick="updateStatus(${app.application_id},'rejected')">Reject</button>
+          ` : (app.status === "rejected" ? 'Rejected' : 'Selected')}
+        </td>
+        <td>${app.resume_path ? `<a href="../${app.resume_path}" target="_blank">View</a>` : '-'}</td>
+      </tr>`;
+  });
+}
+
+loadMentees();
+</script>
+</body>
+</html>

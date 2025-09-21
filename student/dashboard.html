@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Dashboard</title>
+  <link rel="stylesheet" href="../public/css/style.css" >
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f8f7f7;
+    }
+    nav {
+      background: #405260;
+      padding: 10px;
+    }
+    nav a {
+      color: rgb(28, 26, 26);
+      margin: 0 10px;
+      text-decoration: none;
+    }
+    main {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      background: #2c3e50;
+      gap: 20px;
+      padding: 20px;
+    }
+    .card {
+      background: rgb(24, 32, 32);
+      border-radius: 10px;
+      padding: 15px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    .card h3 {
+      margin-top: 0;
+    }
+    .quick-links ul {
+      list-style: none;
+      padding: 0;
+    }
+    .quick-links li {
+      margin: 10px 0;
+    }
+    .quick-links a {
+      color: #3498db;
+      text-decoration: none;
+    }
+    .status p {
+      margin: 5px 0;
+      font-weight: bold;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 8px;
+      border: 1px solid #f5f5f5bf;
+      text-align: left;
+    }
+    .badge {
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: #2db12d76;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ✅ Navbar -->
+  <div class="page-wrap">
+    <nav>
+      <a href="../student/dashboard.html">Home</a>
+      <a href="../student/internships.html">Internships</a>
+      <a href="../student/projects.html">Projects</a>
+      <a href="../student/profile.html">Profile</a>
+      <a href="../php/auth/logout.php">Logout</a>
+    </nav>
+  </div>
+
+  <!-- ✅ Main Dashboard Layout -->
+  <main>
+    <div>
+      <!-- Welcome -->
+      <div class="card">
+        <h2>Welcome, Student</h2>
+        <p>Your status and quick links.</p>
+      </div>
+
+      <!-- Application Status -->
+      <div class="card status" id="statusCard">
+        <h3>Application Status</h3>
+        <p>Pending: <span id="pendingCount">0</span></p>
+        <p>Accepted: <span id="acceptedCount">0</span></p>
+        <p>Rejected: <span id="rejectedCount">0</span></p>
+      </div>
+
+      <!-- Recent Applications -->
+      <div class="card">
+        <h3>Recent Applications</h3>
+        <table id="myApps">
+          <thead>
+            <tr><th>Internship</th><th>Status</th><th>Applied On</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    <div class="card">
+      <h2>My Applications</h2>
+      <table id="myApplications" border="1">
+        <thead>
+         <tr>
+         <th>Title</th>
+         <th>Kind</th>
+         <th>Status</th>
+         <th>Stipend</th>
+         <th>Duration</th>
+         <th>Skills</th>
+         <th>Posted By</th>
+         <th>Applicants</th>
+        </tr>
+        </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <!-- Quick Links -->
+    <div>
+      <div class="card quick-links">
+        <h3>Quick Links</h3>
+        <ul>
+          <li><a href="../student/internships.html">Browse Internships</a></li>
+          <li><a href="../student/projects.html">Browse Projects</a></li>
+          <li><a href="../student/profile.html">Update Profile</a></li>
+        </ul>
+      </div>
+    </div>
+</main>
+<script>
+async function loadMyApps() {
+    try {
+        const r = await fetch('../php/internships/list.php?myApplications=1', { credentials: 'include' });
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        const d = await r.json();
+        const tb = document.querySelector('#myApps tbody');
+        tb.innerHTML = '';
+
+        let pending = 0, accepted = 0, rejected = 0;
+
+        if (d.status === 'success' && Array.isArray(d.applications)) {
+            d.applications.forEach(a => {
+                if (a.status === 'submitted' || a.status=='reviewing') pending++;
+                else if (a.status === 'selected') accepted++;
+                else if (a.status === 'rejected') rejected++;
+
+                tb.innerHTML += `<tr>
+                    <td>${a.title}</td>
+                    <td><span class="badge">${a.status}</span></td>
+                    <td>${a.applied_at || '-'}</td>
+                </tr>`;
+            });
+        } else {
+            tb.innerHTML = `<tr><td colspan="3">No applications found</td></tr>`;
+        }
+
+        document.getElementById('pendingCount').textContent = pending;
+        document.getElementById('acceptedCount').textContent = accepted;
+        document.getElementById('rejectedCount').textContent = rejected;
+
+    } catch (err) {
+        console.error('Failed to load applications:', err);
+        const tb = document.querySelector('#myApps tbody');
+        tb.innerHTML = `<tr><td colspan="3">Could not load applications</td></tr>`;
+    }
+}
+
+async function loadMyApplications() {
+    try {
+        const res = await fetch('../php/internships/list.php?myApplications=1', { credentials: 'include' });
+        const data = await res.json();
+        const tb = document.querySelector('#myApplications tbody');
+        tb.innerHTML = '';
+
+        if (data.status === 'success' && Array.isArray(data.applications)) {
+            data.applications.forEach(a => {
+                tb.innerHTML += `<tr>
+                    <td>${a.title}</td>
+                    <td>${a.kind}</td>
+                    <td><span class="badge">${a.status}</span></td>
+                    <td>${a.stipend || '-'}</td>
+                    <td>${a.duration || '-'}</td>
+                    <td>${a.skills_required || '-'}</td>
+                    <td>${a.posted_by_name} (${a.posted_by_role})</td>
+                    <td>${a.applicant_count || 0}</td>
+                </tr>`;
+            });
+        } else {
+            tb.innerHTML = '<tr><td colspan="8">No applications yet</td></tr>';
+        }
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+// Auto-refresh applications when page loads
+document.addEventListener('DOMContentLoaded', () => {
+    loadMyApps();
+    loadMyApplications();
+});
+</script>
+</head>
+</html>

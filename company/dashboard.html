@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Company Dashboard</title>
+  <link rel="stylesheet" href="../public/css/style.css">
+</head>
+<body>
+  
+<div class="page-wrap">
+  <nav>
+    <a href="../company/dashboard.html">Home</a>
+    <a href="../company/post_internship.html">Post Internship</a>
+    <a href="../company/mentees.html">Mentees</a>
+    <a href="../company/profile.html">Profile</a>
+    <a href="../php/auth/logout.php">Logout</a>
+  </nav>
+  
+  <div class="card">
+    <h2>Company Dashboard</h2>
+    <p>Post internships and monitor mentees.</p>
+  </div>
+  
+  <div class="card">
+    <h3>My Posted Internships</h3>
+    <table id="postedInternships">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Type</th>
+          <th>Stipend</th>
+          <th>Duration</th>
+          <th>Skills</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+async function loadPostedInternships() {
+  // Fetch internships posted by this company
+  const res = await fetch('../php/internships/list.php?mine=1', { credentials: 'include' });
+  const data = await res.json();
+
+  const tb = document.querySelector('#postedInternships tbody');
+  tb.innerHTML = '';
+
+  (data.internships || []).forEach(i => {
+    tb.innerHTML += `
+      <tr>
+        <td>${i.title}</td>
+        <td>${i.kind || ''}</td>
+        <td>${i.stipend || '-'}</td>
+        <td>${i.duration || '-'}</td>
+        <td>${i.skills_required || '-'}</td>
+      </tr>`;
+  });
+
+  if (!data.internships || data.internships.length === 0) {
+    tb.innerHTML = `<tr><td colspan="5">No internships posted yet</td></tr>`;
+  }
+}
+
+// Load posted internships when page is ready
+document.addEventListener('DOMContentLoaded', loadPostedInternships);
+</script>
+
+</body>
+</html>
