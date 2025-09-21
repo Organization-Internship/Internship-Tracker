@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Browse Internships</title>
+  <link rel="stylesheet" href="../public/css/style.css">
+</head>
+<body>
+  
+<div class="page-wrap">
+  <!-- ✅ Navbar -->
+  <nav>
+    <a href="../student/dashboard.html">Home</a>
+    <a href="../student/internships.html">Internships</a>
+    <a href="../student/projects.html">Projects</a>
+    <a href="../student/profile.html">Profile</a>
+    <a href="../php/auth/logout.php">Logout</a>
+  </nav>
+
+  <!-- ✅ Old Internships Table -->
+  <div class="card">
+    <h2>Internships (Basic List)</h2>
+    <button onclick="genAI()">Generate AI Internships (demo)</button>
+    <table id="ints">
+      <thead>
+        <tr>
+          <th>Title</th><th>Type</th><th>Stipend</th><th>Duration</th><th>Skills</th><th>Action</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <!-- ✅ New Detailed Internships Table -->
+  <div class="card">
+    <h2>Available Internships (Detailed)</h2>
+    <table id="availableInternships">
+      <thead>
+        <tr>
+          <th>Internship</th>
+          <th>Type</th>
+          <th>Stipend</th>
+          <th>Duration</th>
+          <th>Skills</th>
+          <th>Posted By</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+// ---------- OLD BASIC LIST ----------
+async function loadList(){
+  const r = await fetch('../php/internships/list.php',{credentials:'include'});
+  const d = await r.json();
+  const tb = document.querySelector('#ints tbody');
+  tb.innerHTML = (d.internships||[]).map(x=>`<tr>
+    <td>${x.title}</td><td>${x.kind}</td><td>${x.stipend||''}</td>
+    <td>${x.duration||''}</td>
+    <td><span class="small">${(x.skills_required||'').slice(0,40)}</span></td>
+    <td>
+      <form class="applyForm" enctype="multipart/form-data" onsubmit="applyInternshipWithResume(event, ${x.id})">
+        <input type="file" name="resume" accept=".pdf,.doc,.docx" required>
+        <button type="submit">Apply</button>
+      </form>
+    </td>
+  </tr>`).join('');
+}
+
+async function genAI(){
+  const r = await fetch('../php/internships/generate_ai.php',{method:'POST',credentials:'include'});
+  const d = await r.json();
+  alert(d.message||'Generated');
+  loadList();
+}
+
+// ---------- NEW DETAILED LIST ----------
+async function loadAvailableInternships() {
+  try {
+      const res = await fetch('../php/internships/list.php', { credentials: 'include' });
+      const data = await res.json();
+      const tbody = document.querySelector('#availableInternships tbody');
+      tbody.innerHTML = '';
+
+      if (data.status === 'success' && Array.isArray(data.internships)) {
+          data.internships.forEach(i => {
+              tbody.innerHTML += `<tr>
+                  <td>${i.title}</td>
+                  <td>${i.kind}</td>
+                  <td>${i.stipend||'-'}</td>
+                  <td>${i.duration||'-'}</td>
+                  <td>${i.skills_required||'-'}</td>
+                  <td>${i.posted_by} (${i.poster_role})</td>
+                  <td>
+                    <form class="applyForm" enctype="multipart/form-data" onsubmit="applyInternshipWithResume(event, ${i.id})">
+                      <input type="file" name="resume" accept=".pdf,.doc,.docx" required>
+                      <button type="submit">Apply</button>
+                    </form>
+                  </td>
+              </tr>`;
+          });
+      } else {
+          tbody.innerHTML = `<tr><td colspan="7">No internships available</td></tr>`;
+      }
+  } catch(err) {
+      console.error('Failed to load internships:', err);
+  }
+}
+
+// ---------- APPLY WITH RESUME ----------
+async function applyInternshipWithResume(event, internshipId) {
+  event.preventDefault();
+  const form = event.target;
+  const button = form.querySelector('button');
+  const formData = new FormData(form);
+  formData.append('internship_id', internshipId);
+
+  try {
+      const res = await fetch('../php/internships/apply.php', {
+          method: 'POST',
+          body: formData,
+          credentials: 'include'
+      });
+      const data = await res.json();
+      if (data.status === 'success') {
+          button.style.backgroundColor = '#ccc';
+            button.style.color = '#666';
+            button.style.cursor = 'not-allowed';
+            button.textContent = 'Applied';
+            alert(data.message || 'Application submitted');
+      } else {
+          alert(data.message || 'Failed to apply');
+      }
+
+      // Refresh tables
+      await loadList();
+      await loadAvailableInternships();
+  } catch (err) {
+      console.error('Error applying:', err);
+      alert('Failed to apply');
+  }
+}
+
+// ---------- INIT ----------
+document.addEventListener('DOMContentLoaded', () => {
+  loadList();
+  loadAvailableInternships();
+});
+</script>
+</body>
+</html>

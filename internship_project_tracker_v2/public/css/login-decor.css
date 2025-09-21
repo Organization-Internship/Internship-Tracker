@@ -1,0 +1,19 @@
+/* Decorations for login page */
+.decor {
+  position: absolute;
+  width: 80px;
+  opacity: 0.9;
+  animation: float 6s ease-in-out infinite;
+  z-index: 0;
+}
+
+.decor.laptop { top: 10%; left: 5%; }
+.decor.chart { bottom: 15%; right: 10%; }
+.decor.sticky { top: 20%; right: 15%; }
+.decor.folder { bottom: 10%; left: 12%; }
+
+@keyframes float {
+  0%   { transform: translateY(0px); }
+  50%  { transform: translateY(-15px); }
+  100% { transform: translateY(0px); }
+}
